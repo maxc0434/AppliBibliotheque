@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 
 import authRoutes from "./routes/authRoutes.js";
+import bookRoutes from "./routes/bookRoutes.js";
 import { connectDB } from "./lib/db.js"
 
 // Création de l'instance de l'application Express
@@ -13,7 +14,8 @@ app.use(express.json());
 
 
 //Definition des routes
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/books", bookRoutes);
 
 
 //Definition du port d'écoute du serveur
