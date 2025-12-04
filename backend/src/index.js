@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
@@ -11,6 +12,9 @@ const PORT = process.env.PORT || 3000 // condition de connexion sur le port defi
 
 //Définition du middleware pour parser les requetes HTTP en JSON
 app.use(express.json());
+
+// 
+app.use(cors());
 
 
 //Definition des routes
