@@ -31,7 +31,7 @@ export default function Login() {
     <View style={styles.container}>
       <View>
         <Image
-          source={require("../../assets/images/Bookshop-amico.png")}
+          source={require("../../assets/images/Login-amico.png")}
           style={styles.illustrationImage}
           resizeMode="contain"
         />
