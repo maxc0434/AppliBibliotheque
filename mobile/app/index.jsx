@@ -1,26 +1,15 @@
 import {StyleSheet, Text, View } from "react-native";
-import { Image } from "expo-image";
 import { Link } from "expo-router";
 
 export default function Index() {
   return (
-    <View
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <Text style={styles.text}>BIBLIOOOOOOOOOOOTHEQUE</Text>
-
-      <Link href="/login"> Login </Link>
-      <Link href="/signup"> Inscription </Link>
-
-
-
-      {/* <Image
-        source={{ uri: "https://unsplash.com/fr/photos/tete-humaine-numerique-abstraite-avec-des-effets-de-glitch-colores-qnHhZFU6rMQ"}}
-      /> */}
+      <Link href="/(auth)"><Text style={styles.link}>Connexion</Text></Link>
+      <Link href="/(auth)/signup"><Text style={styles.link}>Inscription</Text></Link>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container:{
@@ -30,6 +19,9 @@ const styles = StyleSheet.create({
   },
   text:{
     color:'blue',
+  },
+  link:{
+    color: 'blue',
+    marginTop: 8,
   }
-
 })

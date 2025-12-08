@@ -9,8 +9,12 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
-    padding: 20,
+    padding: 16,
     justifyContent: "center",
+    alignItems: "center",
+  },
+  imageView:{
+    paddingVertical: 0,
   },
   scrollViewStyle: {
     flex: 1,
@@ -21,8 +25,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   illustrationImage: {
-    width: width * 0.75,
-    height: width * 0.75,
+    // width: width * 0.25,
+    height: width * 0.4,
   },
   card: {
     backgroundColor: COLORS.cardBackground,
@@ -35,11 +39,11 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 2,
     borderColor: COLORS.border,
-    marginTop: -24,
+    marginTop: 20,
+    width: "100%",
   },
   header: {
     alignItems: "center",
-    marginBottom: 24,
   },
   title: {
     fontSize: 32,
