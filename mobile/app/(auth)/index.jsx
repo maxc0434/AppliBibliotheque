@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import React from "react";
 import styles from "../../assets/styles/login.styles";
@@ -14,14 +15,27 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { Link } from "expo-router";
+import { useAuthStore } from "../../store/authStore";
 
 export default function Login() {
+  // Déclare l'état local pour stocker l'email saisi par l'utilisateur
   const [email, setEmail] = useState("");
+  // Déclare l'état local pour stocker le mot de passe saisi par l'utilisateur
   const [password, setPassword] = useState("");
+  // Déclare un état booléen pour afficher ou masquer le mot de passe
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // Récupère depuis le store les valeurs user, isLoading, et la fonction login
+  const {user, isLoading, login} = useAuthStore();
 
-  const handleLogin = () => {};
+  // Fonction appelée lorsque l'utilisateur clique sur le bouton de connexion
+  const handleLogin = async () => {
+    // Appelle la fonction login avec les valeurs d'email et de mot de passe
+    const result = await login(email, password);
+
+    // Si la connexion échoue, affiche une alerte avec le message d'erreur
+    if (!result.success) Alert.alert("Erreur", result.error);
+  };
+
 
   return (
     <KeyboardAvoidingView
