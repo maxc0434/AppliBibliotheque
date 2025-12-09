@@ -1,6 +1,7 @@
 import express from "express";
-import protectRoute from "../middleware/auth.middleware";
-import Book from "../models/Books";
+import protectRoute from "../middleware/auth.middleware.js";
+import Book from "../models/Books.js";
+import cloudinary from "../lib/cloudinary.js";
 
 const router = express.Router();
 //#region Créer Un livre
@@ -33,13 +34,13 @@ router.post("/", protectRoute, async (req, res) => {
          * Etape 4 : Creer l'objet livre avec toutes les donnees
          * On ajoute l'ID de l'utilisateur connecte (req.user._id) comme proprietaire
          */
-        const newBook = {
+        const book =new Book ({
             title,
             caption,
             rating,
             image: imageUrl,
             user: req.user._id,
-        };
+        });
 
         /**
          * Etape 5 : Sauvegarder le livre dans la base de donnees

@@ -22,7 +22,7 @@ export const useAuthStore = create((set) => ({
 
         try {
             // Envoi d'une requête POST à l'API pour créer un compte
-            const response = await fetch("http://localhost:3000/api/auth/register", {
+            const response = await fetch("https://applibibliothequebackend.onrender.com/api/auth/register", {
                 method: "POST", // Type de requête
                 headers: {
                     "Content-Type": "application/json", // Spécifie le type de contenu
