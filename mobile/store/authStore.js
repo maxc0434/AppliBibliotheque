@@ -4,6 +4,8 @@ import { create } from "zustand";
 // Importation d'AsyncStorage pour stocker des données localement sur le mobile
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import {API_URL} from "../constants/api"
+
 
 
 // Création du store Zustand et exportation du hook personnalisé 'useAuthStore'
@@ -22,7 +24,7 @@ export const useAuthStore = create((set) => ({
 
         try {
             // Envoi d'une requête POST à l'API pour créer un compte
-            const response = await fetch("https://applibibliothequebackend.onrender.com/api/auth/register", {
+            const response = await fetch(`${API_URL}/auth/register`, {
                 method: "POST", // Type de requête
                 headers: {
                     "Content-Type": "application/json", // Spécifie le type de contenu
@@ -102,7 +104,7 @@ login: async (email, password) => {
 
     try {
         // Envoie une requête HTTP POST vers le backend pour tenter de se connecter
-        const response = await fetch("https://applibibliothequebackend.onrender.com/api/auth/login", {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: "POST", // Méthode HTTP utilisée
             headers: {
                 "Content-Type": "application/json", // Indique qu'on envoie du JSON
