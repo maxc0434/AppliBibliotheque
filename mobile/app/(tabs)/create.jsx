@@ -30,9 +30,8 @@ const Create = () => {
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const {token} = useAuthStore();
 
-  const pickImage = async () => {
+const pickImage = async () => {
     try {
       if (Platform.OS !== "web") {
         // Vérifie qu'on est sur mobile et pas sur web pour pouvoir ouvrir la galerie
@@ -90,11 +89,14 @@ const Create = () => {
         const imageType = fileType ? `image/${fileType.toLowerCase()}` : "image/jpeg";
         //Construit une URL de données pour l'image en utilisant le type MIME determiné et les données d'image encodées en base64
         const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
-
+        
+        const token = await AsyncStorage.getItem("token");
         // Envoie une requête HTTP POST à l'API pour créer un nouveau livre
         const response = await  fetch(`${API_URL}/books`, {
             //Spécifie la méthode HTTP à utiliser (dans ce cas, POST)
+            
             method: "POST",
+            
             // Définit les en-têtes de la requête
             headers: {
                 //Inclut le token
