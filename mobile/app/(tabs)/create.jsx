@@ -64,8 +64,8 @@ const Create = () => {
         if (asset.base64) {
           // Calcule taille réelle base64 (base64 = ~33% plus gros que binaire)
           const base64Size = asset.base64.length * 0.75;
-          if (base64Size > 800 * 1024) { // Refus si > 800KB (limite serveur)
-            Alert.alert("Image trop lourde", "Choisissez une image plus petite (< 800KB)");
+          if (base64Size > 10000 * 1024) { // Refus si > 10000KB (limite serveur)
+            Alert.alert("Image trop lourde", "Choisissez une image plus petite (< 10MB)");
             return;
           }
           setImageBase64(asset.base64); // Stocke base64 valide

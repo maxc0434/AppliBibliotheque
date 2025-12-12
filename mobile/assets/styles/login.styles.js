@@ -2,8 +2,10 @@
 // styles/login.styles.js
 import { StyleSheet, Dimensions } from "react-native";
 import COLORS from "../../constants/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+
 
 const styles = StyleSheet.create({
   container: {
@@ -17,7 +19,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   scrollViewStyle: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: COLORS.background,
   },
   topIllustration: {
@@ -26,7 +28,7 @@ const styles = StyleSheet.create({
   },
   illustrationImage: {
     // width: width * 0.25,
-    height: width * 0.4,
+    height: width * 0.3,
   },
   card: {
     backgroundColor: COLORS.cardBackground,
