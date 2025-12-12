@@ -52,7 +52,7 @@ const Create = () => {
         aspect: [4, 3], // Ratio 4:3 pour les couvertures de livres
         quality: 0.5, // Qualité 50% pour réduire la taille
         base64: true, // Récupère l'image en base64 pour l'envoi API
-        maxFileSize: 1 * 1024 * 1024, // Limite à 1MB brut
+        // maxFileSize: 1 * 1024 * 1024, // Limite à 1MB brut
       });
       
       // Vérifie si l'utilisateur a annulé OU si pas d'assets
@@ -110,13 +110,13 @@ const Create = () => {
       const token = await AsyncStorage.getItem("token");
 
       // Logs de debug (à supprimer en prod)
-      console.log("🔑 Token:", token ? "OK" : "NULL");
-      console.log("📤 Données envoyées:", {
-        title,
-        caption,
-        rating,
-        image: imageDataUrl.substring(0, 50) + "...",
-      });
+      // console.log("🔑 Token:", token ? "OK" : "NULL");
+      // console.log("📤 Données envoyées:", {
+      //   title,
+      //   caption,
+      //   rating,
+      //   image: imageDataUrl.substring(0, 50) + "...",
+      // });
 
       // Requête POST vers l'API création livre
       const response = await fetch(`${API_URL}/books`, {
