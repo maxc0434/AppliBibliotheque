@@ -1,5 +1,5 @@
 import {
-    ActivityIndicator,
+  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -19,146 +19,186 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuthStore } from "../../store/authStore";
-import {API_URL} from "../../constants/api"
-
+import { API_URL } from "../../constants/api";
 
 const Create = () => {
+  // États du formulaire : titre, image, base64 de l'image, description, note et état de chargement
   const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
   const [caption, setCaption] = useState("");
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); // Hook pour la navigation
 
-const pickImage = async () => {
+
+  //#region PickImage
+  // Fonction pour sélectionner et traiter l'image depuis la galerie
+  const pickImage = async () => {
     try {
+      // Demande de permission galerie UNIQUEMENT sur mobile (pas web)
       if (Platform.OS !== "web") {
-        // Vérifie qu'on est sur mobile et pas sur web pour pouvoir ouvrir la galerie
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync(); // Requete pour ouvrir la galerie d'image
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert(
-            "Permission Denied",
-            "Nous avons besoin d'acceder à votre galerie pour charger une image"
-          );
+          Alert.alert("Permission refusée", "Accès à la galerie nécessaire pour l'image");
           return;
         }
       }
-      //lancer la galerie
+      
+      // Ouvre la galerie avec options optimisées pour éviter les images trop lourdes
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images", //Spécifie le type de média à sélectionner
-        allowsEditing: true, // Autorise l'édition de l'image sélectionnée
-        aspect: [4, 3], //Définit le rapport d'aspect de l'image (4:3)
-        quality: 0.5, // Définit la qualité de l'image (entre 0 et 1)
-        base64: true, // Renvoie l'image sous forme de chaîne de caractères en base64
+        mediaTypes: "images", // Limite aux images uniquement
+        allowsEditing: true, // Permet recadrage simple
+        aspect: [4, 3], // Ratio 4:3 pour les couvertures de livres
+        quality: 0.5, // Qualité 50% pour réduire la taille
+        base64: true, // Récupère l'image en base64 pour l'envoi API
+        maxFileSize: 1 * 1024 * 1024, // Limite à 1MB brut
       });
+      
+      // Vérifie si l'utilisateur a annulé OU si pas d'assets
       if (!result.canceled) {
-        //si l'user n'a pas annulé la selection d'image
-        console.log("Résultat ici: ", result);
-        const asset = result.assets[0];
-        setImage(asset.uri);
+        console.log("Résultat ImagePicker:", result);
+        const asset = result.assets[0]; // Premier (et seul) asset sélectionné
+        setImage(asset.uri); // URI pour l'affichage preview
 
         if (asset.base64) {
-          setImageBase64(asset.base64);
-        } else {
-          Alert.alert("Erreur", "Impossible de récupérer l'image en base64");
+          // Calcule taille réelle base64 (base64 = ~33% plus gros que binaire)
+          const base64Size = asset.base64.length * 0.75;
+          if (base64Size > 800 * 1024) { // Refus si > 800KB (limite serveur)
+            Alert.alert("Image trop lourde", "Choisissez une image plus petite (< 800KB)");
+            return;
+          }
+          setImageBase64(asset.base64); // Stocke base64 valide
+          console.log("✅ Image OK:", Math.round(base64Size / 1024), "KB");
         }
       }
     } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Erreur", "Probleme avec la sélection de l'image");
+      console.error("❌ Erreur sélection image:", error);
+      Alert.alert("Erreur", "Problème lors de la sélection de l'image");
     }
   };
 
+  //#endregion
+
+
+
+
+
+
+
+
+  //#region HandleSubmit
+  // Fonction principale d'envoi du formulaire vers l'API
   const handlesubmit = async () => {
+    // Validation : tous les champs obligatoires remplis
     if (!title || !caption || !imageBase64 || !rating) {
-        Alert.alert("Error", "Veuillez remplir tout les champs");
-        return;
+      Alert.alert("Erreur", "Veuillez remplir tous les champs");
+      return;
     }
+
     try {
-        // Définir l'état de chargement sur true pour indiquer que l'application est en train de charger
-        setLoading(true);
-        // Découpe l'URL de l'image en un tableau de parties en utilisant le point comme séparateur
-        const uriParts = image.split(".");
-        // Extrait l'extension de fichier à partir de la dernière partie de l'URL
-        const fileType = uriParts[uriParts.length - 1];
-        // Determine le type MIME de l'image en fonction de l'extension de fichier
-        // Si l'extension de fichier n'est pas vide, utilise-la pour construire le type MIME
-        // Sinon, utilise la valeur par défault "image/jpeg"
-        const imageType = fileType ? `image/${fileType.toLowerCase()}` : "image/jpeg";
-        //Construit une URL de données pour l'image en utilisant le type MIME determiné et les données d'image encodées en base64
-        const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
-        
-        const token = await AsyncStorage.getItem("token");
-        // Envoie une requête HTTP POST à l'API pour créer un nouveau livre
-        const response = await  fetch(`${API_URL}/books`, {
-            //Spécifie la méthode HTTP à utiliser (dans ce cas, POST)
-            
-            method: "POST",
-            
-            // Définit les en-têtes de la requête
-            headers: {
-                //Inclut le token
-                Authorization: `Bearer ${token}`,
-                // Spécifie le type de contenu de la requete
-                "Content-Type": "application/json",
-            },
-            // Convertit les données à envoyer en JSON et les inclus dans la requete
-            body: JSON.stringify({
-                //Titre du livre, description, note et url de l'image
-                title,
-                caption,
-                rating: rating.toString(),
-                image: imageDataUrl,
-            }),
-        });
+      setLoading(true); // Active l'indicateur de chargement
 
-        //Attend la reponse de l'API et la converti en JSON
+      // Extrait extension depuis URI pour déterminer type MIME
+      const uriParts = image.split(".");
+      const fileType = uriParts[uriParts.length - 1];
+      const imageType = fileType ? `image/${fileType.toLowerCase()}` : "image/jpeg";
+      // Crée URL data complète pour l'image (format standard)
+      const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
+
+      // Récupère token d'authentification depuis AsyncStorage
+      const token = await AsyncStorage.getItem("token");
+
+      // Logs de debug (à supprimer en prod)
+      console.log("🔑 Token:", token ? "OK" : "NULL");
+      console.log("📤 Données envoyées:", {
+        title,
+        caption,
+        rating,
+        image: imageDataUrl.substring(0, 50) + "...",
+      });
+
+      // Requête POST vers l'API création livre
+      const response = await fetch(`${API_URL}/books`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Auth Bearer token
+          "Content-Type": "application/json", // JSON payload
+        },
+        body: JSON.stringify({
+          title: title.toString(), // Force string (évite [object Object])
+          caption: caption.toString(), // Force string (évite [object Object])
+          rating: rating.toString(), // Force string pour cohérence API
+          image: imageDataUrl, // Image complète en data URL
+        }),
+      });
+
+      // Logs réponse serveur
+      console.log("📊 Status:", response.status);
+      console.log("📋 Headers:", response.headers.get("content-type"));
+
+      // Succès : status 200-299
+      if (response.ok) {
         const data = await response.json();
-
-        // Vérifie si la réponse de l'API est réussi, sinon lance une erreur
-        if(!response.ok) throw new Error(data.message ||"Quelque chose s'est mal passé");
-
-        //Affiche une alerte de succès pour informer l'utilisateur que la recommandation a été postée
-        Alert.alert("Success", "Votre recommandation de livre a été posté");
-        //Réinitialise les champs du formulaire pour une nouvelle saisie
+        console.log("✅ Réponse succès:", data);
+        Alert.alert("Succès", "Votre recommandation a été postée !");
+        
+        // Reset formulaire complet
         setTitle("");
         setCaption("");
         setRating(0);
         setImage(null);
         setImageBase64(null);
-        //Redirige l'utilisateur vers la page d'accueil
-        router.push("/");
+        router.push("/"); // Redirection accueil
+        return;
+      }
+
+      // Erreur serveur : lit le message d'erreur
+      const errorText = await response.text();
+      console.error("❌ Erreur API:", errorText);
+      throw new Error(errorText || "Erreur serveur");
 
     } catch (error) {
-        console.error("Erreur dans la création du post", error);
-        Alert.alert("Error", error.message || "Quelque chose s'est mal passé");        
+      console.error("💥 Erreur création post:", error);
+      Alert.alert("Erreur", error.message || "Quelque chose s'est mal passé");
     } finally {
-        //Reinitialise l'état du chargement pour permettre de nouvelles actions
-        setLoading(false);
+      setLoading(false); // Toujours désactiver loading
     }
   };
+//#endregion
 
+
+
+
+
+
+
+
+
+//#region RatingPicker
+  // Composant étoiles de notation (1 à 5)
   const renderRatingPicker = () => {
     const stars = [];
+    // Boucle pour créer 5 étoiles cliquables
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <TouchableOpacity
-          key={i}
-          onPress={() => setRating(i)}
+          key={i} // Clé unique React
+          onPress={() => setRating(i)} // Met la note à l'étoile cliquée
           style={styles.starButton}
         >
           <Ionicons
-            name={i <= rating ? "star" : "star-outline"}
+            name={i <= rating ? "star" : "star-outline"} // Pleine/vide selon note
             size={32}
-            color={i <= rating ? "#fab400" : COLORS.textSecondary}
+            color={i <= rating ? "#fab400" : COLORS.textSecondary} // Jaune/gris
           />
         </TouchableOpacity>
       );
     }
-    return <View style={styles.ratingContainer}>{stars}</View>;
+    return <View style={styles.ratingContainer}>{stars}</View>; // Container horizontal
   };
+  //#endregion 
+
 
   return (
     <KeyboardAvoidingView
@@ -194,7 +234,7 @@ const pickImage = async () => {
                   placeholder="Entrer le titre du livre"
                   placeholderTextColor={COLORS.placeholderText}
                   value={title}
-                  onChange={setTitle}
+                  onChangeText={setTitle}
                 />
               </View>
             </View>
@@ -235,26 +275,30 @@ const pickImage = async () => {
                 placeholder="Tapez votre avis"
                 placeholderTextColor={COLORS.placeholderText}
                 value={caption}
-                onChange={setCaption}
+                onChangeText={setCaption}
                 multiline
               />
             </View>
 
             {/* BOUTON SUBMIT */}
-            <TouchableOpacity style={styles.button} onPress={handlesubmit} disabled={loading}>
-                {loading ? (
-                    <ActivityIndicator color={COLORS.white} />
-                ) : ( 
-                    <> 
-                    <Ionicons 
-                        name="cloud-upload-outline"
-                        size={20}
-                        color={COLORS.white}
-                        style={styles.buttonIcon}
-                    />
-                    <Text style={styles.buttonText}>Valider mon Avis</Text>
-                    </>
-                )}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handlesubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color={COLORS.white} />
+              ) : (
+                <>
+                  <Ionicons
+                    name="cloud-upload-outline"
+                    size={20}
+                    color={COLORS.white}
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>Valider mon Avis</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </View>
