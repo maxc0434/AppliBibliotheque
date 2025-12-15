@@ -23,7 +23,6 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const isAuthenticated = !!user && !!token;
 
   // Fonction asynchrone pour récupérer les livres depusi l'API
   // pageNum: numéro de la page a charger (=> pagination)
@@ -178,13 +177,6 @@ export default function Home() {
             </View>
           }
         />
-
-      {isAuthenticated && (
-        <TouchableOpacity onPress={logout}>
-          <Text>Déconnexion</Text>
-        </TouchableOpacity>
-      )}
-
     </View>
   );
 };

@@ -48,7 +48,7 @@ export default function Login() {
           <View style={styles.card}>
             <View style={styles.header}>
               <Text style={styles.title}>
-                Librairie <Icon name="book" size={24} color="#e0a931" />{" "}
+                BookShare <Icon name="book" size={24} color="#e0a931" />{" "}
               </Text>
               <Text style={styles.subtitle}>CONNECTEZ-VOUS</Text>
             </View>
