@@ -1,5 +1,6 @@
 import { 
-  FlatList, Text, 
+  ActivityIndicator,
+  FlatList, RefreshControl, Text, 
   TouchableOpacity, View 
 } from "react-native";
 import { useEffect, useState } from "react";
@@ -10,6 +11,9 @@ import { Image } from 'expo-image';
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { formatPublishDate } from "../../lib/utils";
+import Loader from "../../components/Loader";
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 export default function Home() {
@@ -79,6 +83,7 @@ export default function Home() {
   //fonction pour charger plus de livres (pagination)
   const handleLoadMore = async () => {
     if (hasMore && !loading && !refreshing) {
+      await sleep(200);
       await fetchBooks(page + 1)
     }
   };
@@ -132,7 +137,9 @@ export default function Home() {
     return stars;
   }
 
-  console.log('BOOKS STATE:', books);
+  // console.log('BOOKS STATE:', books);
+
+  if (loading) return <Loader size="large" />
 
   return (
     <View style={styles.container}>
@@ -142,6 +149,14 @@ export default function Home() {
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => fetchBooks(1, true)}
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
+            />
+          }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.1}
           ListHeaderComponent={
@@ -149,6 +164,11 @@ export default function Home() {
             <Text style={styles.headerTitle}> Bienvenue sur BookShare</Text>
             <Text style={styles.headerSubtitle}>Découvrez les derniers livres partagés par la commu</Text>
             </View>
+          }
+          ListFooterComponent={
+            hasMore && books.length > 0 ? (
+              <ActivityIndicator style={styles.footerLoader} size="small" color={COLORS.primary} />
+            ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
