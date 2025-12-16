@@ -14,10 +14,10 @@ export default function ProfileHeader() {
 
   return (
     <View style={styles.profileHeader}>
-      <Image source={{ uri: user.profilImage }} style={styles.profileImage} /> 
+      <Image source={{ uri: user.profileImage }} style={styles.profileImage} /> 
 
       <View style={styles.profileInfo}>
-        <Text style={styles.username}>{user.name}</Text>
+        <Text style={styles.username}>{user.username}</Text>
         <Text style={styles.email}>{user.email}</Text>
         <Text style={styles.memberSince}> Inscrit : {formatMemberSince(user.createdAt)} </Text>
       </View>
