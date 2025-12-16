@@ -16,7 +16,11 @@ export const useAuthStore = create((set) => ({
     token: null, 
     // Indicateur de chargement, utile pour afficher un spinner pendant les requêtes
     isLoading: false,
+    // Indicateur de vérification de l'authentification
+    isCheckingAuth: true,
 
+
+    //#region Register
     // Fonction asynchrone pour inscrire un nouvel utilisateur
     register: async (username, email, password) => {
         // Active le chargement avant l'envoi de la requête
@@ -67,7 +71,11 @@ export const useAuthStore = create((set) => ({
             };
         }
     },
+    //#endregion
 
+
+
+//#region Authentification
 // Fonction asynchrone pour vérifier l'état d'authentification de l'utilisateur au démarrage de l'app
 checkAuth: async () => {
     try {  // Début du bloc try-catch pour gérer les erreurs potentielles
@@ -86,9 +94,16 @@ checkAuth: async () => {
     } catch (error) {  // Capture toute erreur (AsyncStorage, JSON.parse, etc.)
         // Affiche l'erreur dans la console pour debug (ne bloque pas l'app)
         console.log("Authentification check échouée", error);
+    } finally {
+        // Indique que la vérification de l'authentification est terminée
+        set({isCheckingAuth: false})
     }
 },
+//#endregion
 
+
+
+//#region  Logout
 logout: async () => {
     // Supprime le jeton d'authentification enregistré localement
     await AsyncStorage.removeItem("token");
@@ -97,7 +112,11 @@ logout: async () => {
     // Réinitialise l'état global du store en mettant le token et l'utilisateur à null
     set({token: null, user: null});
 },
+//#endregion
 
+
+
+//#region  Login
 login: async (email, password) => {
     // Passe l'état de chargement à true pendant la tentative de connexion
     set({isLoading: true});
@@ -137,6 +156,7 @@ login: async (email, password) => {
         return {success: false, error: error.message};
     }
 },
+//#endregion
 
 
 }));

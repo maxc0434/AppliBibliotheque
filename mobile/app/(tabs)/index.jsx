@@ -1,3 +1,6 @@
+// Ce composant affiche une liste infinie de recommandations de livres partagées par les utilisateurs.
+// Il charge les données par pages (pagination), permet le rafraîchissement et montre les détails complets.
+
 import { 
   ActivityIndicator,
   FlatList, RefreshControl, Text, 
@@ -13,7 +16,7 @@ import COLORS from "../../constants/colors";
 import { formatPublishDate } from "../../lib/utils";
 import Loader from "../../components/Loader";
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 export default function Home() {

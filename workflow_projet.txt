@@ -1,0 +1,118 @@
+Workflow Simple pour Recommencer le Projet "AppliBibliotheque"
+===============================================================
+
+Ce guide détaille les étapes pour reconstruire votre projet "AppliBibliotheque" (backend Node.js/Express + mobile React Native/Expo) pas à pas. Temps estimé : 2-3 heures pour le setup initial.
+
+1. Prérequis (10-15 min)
+------------------------
+- OS : Windows (avec WSL recommandé pour compatibilité Linux).
+- Installations :
+  - Node.js (v18+) : Téléchargez depuis nodejs.org.
+  - Git : git-scm.com.
+  - MongoDB Atlas : Créez un compte gratuit sur mongodb.com/atlas et une base de données (cluster gratuit).
+  - Cloudinary : Compte gratuit sur cloudinary.com pour l'upload d'images.
+  - Expo CLI : npm install -g @expo/cli.
+  - VS Code : Éditeur recommandé.
+- Vérifications : Ouvrez un terminal et tapez node -v, npm -v, git --version, expo --version.
+
+2. Création des dépôts et structure (15 min)
+---------------------------------------------
+- Créez deux dépôts GitHub :
+  - AppliBibliotheque (mobile).
+  - AppliBibliothequeBackend (backend).
+- Clonez-les localement :
+  git clone https://github.com/votre-username/AppliBibliotheque.git
+  cd AppliBibliotheque
+  git clone https://github.com/votre-username/AppliBibliothequeBackend.git backend
+- Structure finale :
+  AppliBibliotheque/
+    backend/  # Code backend
+    mobile/   # Code mobile
+
+3. Setup du Backend (30-45 min)
+-------------------------------
+- Naviguez dans backend/ :
+  cd backend
+  npm init -y
+- Installez les dépendances :
+  npm install express mongoose jsonwebtoken bcryptjs dotenv cors multer streamifier cloudinary nodemon
+- Créez la structure des fichiers (copiez-collez le code depuis vos fichiers existants ou utilisez les suivants) :
+  - src/index.js : Point d'entrée Express.
+  - src/lib/db.js : Connexion MongoDB.
+  - src/lib/cloudinary.js : Config Cloudinary.
+  - src/models/User.js et Books.js : Schémas Mongoose.
+  - src/middleware/auth.middleware.js : Middleware JWT.
+  - src/routes/authRoutes.js et bookRoutes.js : Routes API.
+- Créez .env :
+  PORT=3000
+  MONGO_URI=mongodb+srv://votre-user:votre-password@cluster.mongodb.net/LibraryAppBooks
+  JWT_SECRET=votre-secret-jwt
+  CLOUDINARY_CLOUD_NAME=votre-cloud-name
+  CLOUDINARY_API_KEY=votre-api-key
+  CLOUDINARY_API_SECRET=votre-api-secret
+- Scripts dans package.json :
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  }
+- Testez : npm run dev → Serveur sur http://localhost:3000.
+
+4. Setup du Mobile (30-45 min)
+------------------------------
+- Naviguez dans mobile/ :
+  cd ../mobile
+  npx create-expo-app@latest . --template blank
+- Installez les dépendances :
+  npm install @react-native-async-storage/async-storage expo-router expo-image-picker @expo/vector-icons react-native-safe-area-context zustand
+- Créez la structure :
+  - app/ : Pages avec Expo Router (_layout.jsx, index.jsx, (auth)/, (tabs)/).
+  - components/ : Composants réutilisables (SafeScreen.jsx, etc.).
+  - constants/ : api.js (API_URL), colors.js.
+  - store/ : authStore.js (Zustand).
+  - assets/styles/ : Fichiers de styles.
+- Configurez app.json pour Expo Router.
+- Testez : npx expo start → Ouvrez dans Expo Go ou simulateur.
+
+5. Configuration des Environnements (15 min)
+--------------------------------------------
+- Backend : Remplacez les valeurs dans .env par vos vraies clés (MongoDB, Cloudinary, JWT).
+- Mobile : Dans constants/api.js, définissez API_URL (local : "http://localhost:3000/api", prod : URL Render).
+- Authentification : Assurez-vous que les routes backend utilisent protectRoute pour sécuriser.
+- Images : Configurez Cloudinary pour l'upload dans bookRoutes.js.
+
+6. Développement (1-2 heures par feature)
+------------------------------------------
+- Backend :
+  - Implémentez les routes : Login/register, CRUD livres.
+  - Testez avec Postman : POST /api/auth/login, POST /api/books.
+- Mobile :
+  - Écrans : Login, Signup, Home (liste livres), Create (formulaire), Profile.
+  - Intégrez Zustand pour l'auth.
+  - Gérez les permissions image avec expo-image-picker.
+- Intégration : Connectez mobile à backend via fetch. Gérez erreurs (401, JSON parse, etc.).
+- Debug : Utilisez console.log, Expo Dev Tools, et les outils VS Code.
+
+7. Tests (20 min)
+-----------------
+- Backend : Utilisez Postman pour tester toutes les routes (auth, livres).
+- Mobile : Testez sur device/simulateur. Vérifiez auth, upload image, navigation.
+- Erreurs communes : Vérifiez tokens JWT, URLs API, permissions.
+
+8. Déploiement (20-30 min)
+--------------------------
+- Backend :
+  - Hébergez sur Render : Connectez le repo GitHub, définissez env vars dans Render.
+  - URL : https://votre-app.onrender.com.
+- Mobile :
+  - Build : eas build --platform android (ou iOS).
+  - Distribuez via Expo : expo publish ou EAS Submit.
+- Final : Testez l'app en prod avec l'URL backend déployée.
+
+Conseils Généraux
+-----------------
+- Commitez souvent : git add . && git commit -m "feat: ajout auth".
+- Sécurité : Ne commitez jamais .env (ajoutez-le à .gitignore).
+- Docs : Ajoutez un README.md dans chaque dossier avec setup et usage.
+- Si bloqué : Vérifiez les logs (backend : console, mobile : Expo CLI).
+
+Ce workflow vous permet de reconstruire le projet proprement. Si vous avez des erreurs spécifiques à une étape, consultez les logs ou demandez de l'aide.
